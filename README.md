@@ -1,7 +1,6 @@
 ## qanvas
 
-_qanvas_ is a simple canvas wrapper
-api is somewhat similar to Raphael.js
+_qanvas_ is a simple canvas wrapper, API is somewhat similar to Raphael.js
 
 Not cross-platform at all, use chrome or _expect_ the _unexpected_
 
@@ -12,34 +11,35 @@ Not cross-platform at all, use chrome or _expect_ the _unexpected_
 // Just an enhanced context2d
 var paper = qanvas('myCanvasDivId').paper;
 
+// Built-in props
 paper.width;
 paper.height;
 paper.midWidth;
 paper.midHeight;
 
+// Built-in method
 paper.circle(cx,cy,radius);
-
 paper.rect(x,y,width,height);
-
 paper.square(x,y,side);
-
 paper.text(x,y,text);
-
 paper.line(x1,y1,x2,y2);
 
 ```
 
-You also got some basic helper in ```javascript qanvas().paper;``` :
+You also got some basic helper in ```qanvas().paper;``` :
 
 ```javascript
 
 var paper = qanvas('myCanvasDivId').paper;
 
 paper.helper.c2p(x,y);
+// Return a coresponding [radius,angle] array
 
 paper.helper.p2c(radius,angle);
+// Return a coresponding [x,y] array
 
-paper(x,y,gravityX,gravityY,angle);
+paper.convert(x,y,gravityX,gravityY,angle);
+// Return a new [x,y], after having rotate x,y from 'angle' centred on gravityX,gravityY
 
 ```
 
