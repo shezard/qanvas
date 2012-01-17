@@ -26,6 +26,18 @@ paper.line(x1,y1,x2,y2);
 
 ```
 
+Styling
+
+```javascript
+
+paper.fastStyle('fillStyle','rgba(255,255,255,.3)');
+paper.style({
+  fill:'rgba(255,255,255,.3)',
+  lineWidth : 15
+};
+
+```
+
 You also got some basic helper in ```qanvas().paper;``` :
 
 ```javascript
