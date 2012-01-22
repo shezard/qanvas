@@ -19,8 +19,11 @@ paper.midHeight;
 
 // Built-in method
 paper.circle(cx,cy,radius);
-paper.rect(x,y,width,height);
-paper.square(x,y,side);
+paper.halfCircle(cx,cy,radius,angle);
+paper.halfEllipse(cx,cy,width,height[,angle,ox,oy]);
+paper.rect(x,y,width,height[,angle,ox,oy]);
+paper.square(x,y,side[,angle,ox,oy]);
+paper.quadri(x1,y1,x2,y2,x3,y3,x4,y4[,angle,ox,oy]);
 paper.text(x,y,text);
 paper.line(x1,y1,x2,y2);
 
@@ -34,7 +37,7 @@ paper.fastStyle('fillStyle','rgba(255,255,255,.3)');
 paper.style({
   fill:'rgba(255,255,255,.3)',
   lineWidth : 15
-};
+});
 
 ```
 
