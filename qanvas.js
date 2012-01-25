@@ -10,7 +10,7 @@
   // paper.rect(10,10,20,10).circle(30,30,50);
   // as you can see it's not Raphael.js, each call to any method of paper will return the paper itself , and not the created element
   // you get much less absctraction than in Raphael.js, so if you need to modify an item after it's creation, use Raphael.js instead
-  root.qanvas = function(el,fullScreen) {
+  root.qanvas = function(el,fullScreen,scaleX,scaleY) {
     
     // Dom Element
     var canvas = document.getElementById(el);
@@ -19,8 +19,8 @@
     var paper = canvas.getContext('2d');
     if(!paper) throw Error(el+'.getContext(\'2d\') not found'); 
     // We store width and height, and set the 
-    var width = canvas.width = fullScreen ? document.body.clientWidth : canvas.width;
-    var height = canvas.height = fullScreen ? document.body.clientHeight : canvas.height;
+    var width = canvas.width = fullScreen ? document.body.clientWidth*(scaleX || 1) : canvas.width*(scaleX || 1),
+        height = canvas.height = fullScreen ? document.body.clientHeight*(scaleY || 1) : canvas.height*(scaleY || 1);
     
     // The accessible part
     var _qanvas = function() {
@@ -49,30 +49,67 @@
           paper.fill();
           return this
         },
-        halfCircle : function(cx,cy,radius,angle) {
+        halfCircle : function(cx,cy,radius,angle,ox,oy) {
           if(angle) angle = Math.PI/180*angle
           paper.beginPath();
-          paper.arc(cx,cy,radius,(angle || 0),(angle || 0)+Math.PI,true);
+          if(ox && oy) {
+            var oxy = this.helper.convert(cx,cy,ox,oy,angle);
+            paper.arc(oxy[0],oxy[1],radius,angle,angle+Math.PI,true);
+          } else {
+            paper.arc(cx,cy,radius,(angle || 0),(angle || 0)+Math.PI,true);
+          }
           paper.closePath();
           paper.stroke();
           paper.fill();
-          return this
+          return this;
         },
-        halfEllipse : function(cx,cy,width,height,angle,ox,oy) {
-          if(angle) angle = Math.PI/180*angle
-          var xy = [cx + width/2, cy - height/2]; // C1
-          var xwy = [cx + width/2, cy + height/2]; // C2
-          var xwyh = [cx, cy + height/2]; // A2
-          var xyh = [cx, cy - height/2];  // A1
+        ellipse : function(cx,cy,width,height,angle,ox,oy) {
+          var xy = [cx + height, cy - width], // C1
+              xwy = [cx + height, cy + width], // C2
+              xy2 = [cx - height, cy + width], // C3
+              xwy2 = [cx - height, cy - width], // C4
+              xwyh = [cx, cy + width], // A2
+              xyh = [cx, cy - width];  // A1
           
           if(angle) {
-            var ox = ox || cx
-            var oy = oy || cy;
+            angle = Math.PI/180*angle;
+            var ox = ox || cx,
+                oy = oy || cy;
           
-            xy =  this.helper.convert(cx + width/2,cy - height/2,ox,oy,angle);
-            xwy = this.helper.convert(cx + width/2,cy + height/2,ox,oy,angle); 
-            xwyh = this.helper.convert(cx,cy + height/2,ox,oy,angle); 
-            xyh = this.helper.convert(cx,cy - height/2,ox,oy,angle); 
+            xy =  this.helper.convert(cx + height,cy - width,ox,oy,angle);
+            xwy = this.helper.convert(cx + height,cy + width,ox,oy,angle); 
+            xy2 =  this.helper.convert(cx - height,cy + width,ox,oy,angle);
+            xwy2 = this.helper.convert(cx - height,cy - width,ox,oy,angle); 
+            xwyh = this.helper.convert(cx,cy + width,ox,oy,angle); 
+            xyh = this.helper.convert(cx,cy - width,ox,oy,angle); 
+          }
+          
+          var t = xy.concat(xwy.concat(xwyh)),
+              t2 = xy2.concat(xwy2.concat(xyh));
+          paper.beginPath();
+          paper.moveTo.apply(paper,xyh); // A1
+          paper.bezierCurveTo.apply(paper,t); // Bezier 1
+          paper.bezierCurveTo.apply(paper,t2); // Bezier 2
+          paper.closePath();
+          paper.stroke();
+          paper.fill();
+          return this;
+        },
+        halfEllipse : function(cx,cy,width,height,angle,ox,oy) {
+          var xy = [cx + height, cy - width], // C1
+              xwy = [cx + height, cy + width], // C2
+              xwyh = [cx, cy + width], // A2
+              xyh = [cx, cy - width];  // A1
+          
+          if(angle) {
+            angle = Math.PI/180*angle;
+            var ox = ox || cx,
+                oy = oy || cy;
+          
+            xy =  this.helper.convert(cx + height,cy - width,ox,oy,angle);
+            xwy = this.helper.convert(cx + height,cy + width,ox,oy,angle); 
+            xwyh = this.helper.convert(cx,cy + width,ox,oy,angle); 
+            xyh = this.helper.convert(cx,cy - width,ox,oy,angle); 
           }
           
           var t = xy.concat(xwy.concat(xwyh));
@@ -82,18 +119,18 @@
           paper.closePath();
           paper.stroke();
           paper.fill();
-          return this
+          return this;
         },
         square : function(x,y,side,angle,ox,oy) {
-          if(angle) angle = Math.PI/180*angle
           var xy = [x,y];
-          var xwy = [x+side,y];
-          var xwyh = [x+side,y+side];
-          var xyh = [x,y+side];
+              xwy = [x+side,y],
+              xwyh = [x+side,y+side],
+              xyh = [x,y+side];
           
           if(angle) {
-            var ox = ox || x+side/2;
-            var oy = oy || y+side/2;
+            angle = Math.PI/180*angle;
+            var ox = ox || x+side/2,
+                oy = oy || y+side/2;
           
             xy =  this.helper.convert(x,y,ox,oy,angle);
             xwy = this.helper.convert(x+side,y,ox,oy,angle); 
@@ -108,18 +145,18 @@
           paper.closePath();
           paper.stroke();
           paper.fill();
-          return this
+          return this;
         },
         rect : function(x,y,width,height,angle,ox,oy) {
-          if(angle) angle = Math.PI/180*angle
-          var xy = [x,y];
-          var xwy = [x+width,y];
-          var xwyh = [x+width,y+height];
-          var xyh = [x,y+height];
+          var xy = [x,y],
+              xwy = [x+width,y],
+              xwyh = [x+width,y+height],
+              xyh = [x,y+height];
           
           if(angle) {
-            var ox = ox || x+width/2;
-            var oy = oy || y+height/2;
+            angle = Math.PI/180*angle;
+            var ox = ox || x+width/2,
+                oy = oy || y+height/2;
           
             xy =  this.helper.convert(x,y,ox,oy,angle);
             xwy = this.helper.convert(x+width,y,ox,oy,angle); 
@@ -134,18 +171,18 @@
           paper.closePath();
           paper.stroke();
           paper.fill();
-          return this
+          return this;
         },
         quadri : function(x1,y1,x2,y2,x3,y3,x4,y4,angle,ox,oy) {
-          if(angle) angle = Math.PI/180*angle
           var xy = [x1,y1];
-          var xwy = [x2,y2];
-          var xwyh = [x3,y3];
-          var xyh = [x4,y4];
+              xwy = [x2,y2],
+              xwyh = [x3,y3],
+              xyh = [x4,y4];
           
           if(angle) {
-            var ox = ox || (x1+x2+x3+x4)/4;
-            var oy = oy || (y1+y2+y3+y4)/4;
+            angle = Math.PI/180*angle;
+            var ox = ox || (x1+x2+x3+x4)/4,
+                oy = oy || (y1+y2+y3+y4)/4;
 
             xy =  this.helper.convert(x1,y1,ox,oy,angle);
             xwy = this.helper.convert(x2,y2,ox,oy,angle); 
@@ -166,9 +203,21 @@
           paper.fillText(text,x,y);
           return this;
         },
-        line : function(x,y,x2,y2) {
-          paper.moveTo(x,y);
-          paper.lineTo(x2,y2);
+        line : function(x1,y1,x2,y2,angle,ox,oy) {
+          var xy = [x1,y1],
+              xy2 = [x2,y2];
+              
+          if(angle) {
+            angle = angle/180*Math.PI;
+            var ox = ox || (x1+x2)/2,
+                oy = oy || (y1+y2)/2;
+                
+            xy = this.helper.convert(x1,y1,ox,oy,angle);
+            xy2 = this.helper.convert(x2,y2,ox,oy,angle);
+          }
+          paper.beginPath();
+          paper.moveTo.apply(paper,xy);
+          paper.lineTo.apply(paper,xy2);
           paper.closePath();
           paper.stroke();
           paper.fill();
@@ -176,16 +225,16 @@
         },
         helper : {
           c2p : function(x,y) {
-            var r = Math.sqrt(x*x+y*y);
-            var a = Math.atan(y/x);
+            var r = Math.sqrt(x*x+y*y),
+                a = Math.atan(y/x);
             if(x < 0 && y >= 0) a += Math.PI // second quadrand
             if(x < 0 && y < 0) a += Math.PI // third
             if(x >= 0 && y < 0) a += 2*Math.PI  // fourth
             return [r,a];
           },
           p2c : function(r,a) {
-            var x = r*Math.cos(a);
-            var y = r*Math.sin(a);
+            var x = r*Math.cos(a),
+                y = r*Math.sin(a);
             return [x,y];
           },
           convert : function(x,y,ox,oy,angle) {
@@ -197,20 +246,27 @@
             return xy;
           }
         },
+        fill : function(fillStyle) {
+          if(!fillStyle) throw Error('missing arguments');
+          paper.fillStyle = fillStyle;
+          return this;
+        },
+        stroke : function(strokeStyle) {
+          if(!strokeStyle) throw Error('missing arguments');
+          paper.strokeStyle = strokeStyle;
+          return this;
+        }, 
         style : function(style) {
-          if(style && typeof style !== 'object') throw new TypeError('style should be an object, but it\'s a '+typeof style);   
+          if(style && typeof style !== 'object') throw TypeError('style should be an object, but it\'s a '+typeof style);   
           for(var prop in style) {
             if(paper.hasOwnProperty(prop) || typeof paper[prop] !== 'function') {
               paper[prop] = style[prop];
-            }
-            if(paper.hasOwnProperty(prop+'Style') || typeof paper[prop+'Style'] !== 'function') {
-              paper[prop+'Style'] = style[prop];
             }
           }
           return this;
         } ,
         fastStyle : function(prop,value) {
-          if(!prop || !value) new Error('missing arguments');
+          if(!prop || !value) throw Error('missing arguments');
           paper[prop] = value;
           return this;
         },

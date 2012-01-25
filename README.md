@@ -19,13 +19,14 @@ paper.midHeight;
 
 // Built-in method
 paper.circle(cx,cy,radius);
-paper.halfCircle(cx,cy,radius,angle);
+paper.halfCircle(cx,cy,radius[,angle,ox,oy]);
+paper.ellipse(cx,cy,width,height[,angle,ox,oy]);
 paper.halfEllipse(cx,cy,width,height[,angle,ox,oy]);
 paper.rect(x,y,width,height[,angle,ox,oy]);
 paper.square(x,y,side[,angle,ox,oy]);
 paper.quadri(x1,y1,x2,y2,x3,y3,x4,y4[,angle,ox,oy]);
 paper.text(x,y,text);
-paper.line(x1,y1,x2,y2);
+paper.line(x1,y1,x2,y2[,angle,ox,oy]);
 
 ```
 
@@ -33,9 +34,14 @@ Styling
 
 ```javascript
 
+//shortcuts
+paper.fill('rgba(255,255,255,.3)');
+paper.stroke('rgba(255,255,255,.3)');
+
 paper.fastStyle('fillStyle','rgba(255,255,255,.3)');
+
 paper.style({
-  fill:'rgba(255,255,255,.3)',
+  fillStyle:'rgba(255,255,255,.3)',
   lineWidth : 15
 });
 
@@ -48,13 +54,15 @@ You also got some basic helper in ```qanvas().paper;``` :
 var paper = qanvas('myCanvasDivId').paper;
 
 paper.helper.c2p(x,y);
+// Carthesian to Polar
 // Return a coresponding [radius,angle] array
 
 paper.helper.p2c(radius,angle);
+// Polar to Carthesian
 // Return a coresponding [x,y] array
 
-paper.convert(x,y,gravityX,gravityY,angle);
-// Return a new [x,y], after having rotate x,y from 'angle' centred on gravityX,gravityY
+paper.convert(x,y,ox,oy,angle);
+// Return a new [x,y], after having rotate x,y from 'angle' centred on ox, oy
 
 ```
 
