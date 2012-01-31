@@ -22,6 +22,12 @@
     var width = canvas.width = fullScreen ? document.body.clientWidth*(scaleX || 1) : canvas.width*(scaleX || 1),
         height = canvas.height = fullScreen ? document.body.clientHeight*(scaleY || 1) : canvas.height*(scaleY || 1);
     
+    // faster access cache
+    var pi = Math.PI,
+        pir = pi/180,
+        cos = Math.cos,
+        sin = Math.sin;
+      
     // The accessible part
     var _qanvas = function() {
       this.width = width;
@@ -43,20 +49,20 @@
         // And methods
         circle : function(cx,cy,radius) {
           paper.beginPath();
-          paper.arc(cx,cy,radius,0,Math.PI * 2,true);
+          paper.arc(cx,cy,radius,0,pi*2,true);
           paper.closePath();
           paper.stroke();
           paper.fill();
           return this
         },
         halfCircle : function(cx,cy,radius,angle,ox,oy) {
-          if(angle) angle = Math.PI/180*angle
+          if(angle) angle = pir*angle
           paper.beginPath();
           if(ox && oy) {
             var oxy = this.helper.convert(cx,cy,ox,oy,angle);
-            paper.arc(oxy[0],oxy[1],radius,angle,angle+Math.PI,true);
+            paper.arc(oxy[0],oxy[1],radius,angle,angle+pi,true);
           } else {
-            paper.arc(cx,cy,radius,(angle || 0),(angle || 0)+Math.PI,true);
+            paper.arc(cx,cy,radius,(angle || 0),(angle || 0)+pi,true);
           }
           paper.closePath();
           paper.stroke();
@@ -72,7 +78,7 @@
               xyh = [cx, cy - width];  // A1
           
           if(angle) {
-            angle = Math.PI/180*angle;
+            angle = pir*angle;
             var ox = ox || cx,
                 oy = oy || cy;
           
@@ -102,7 +108,7 @@
               xyh = [cx, cy - width];  // A1
           
           if(angle) {
-            angle = Math.PI/180*angle;
+            angle = pir*angle;
             var ox = ox || cx,
                 oy = oy || cy;
           
@@ -128,7 +134,7 @@
               xyh = [x,y+side];
           
           if(angle) {
-            angle = Math.PI/180*angle;
+            angle = pir*angle;
             var ox = ox || x+side/2,
                 oy = oy || y+side/2;
           
@@ -154,7 +160,7 @@
               xyh = [x,y+height];
           
           if(angle) {
-            angle = Math.PI/180*angle;
+            angle = pir*angle;
             var ox = ox || x+width/2,
                 oy = oy || y+height/2;
           
@@ -180,7 +186,7 @@
               xyh = [x4,y4];
           
           if(angle) {
-            angle = Math.PI/180*angle;
+            angle = pir*angle;
             var ox = ox || (x1+x2+x3+x4)/4,
                 oy = oy || (y1+y2+y3+y4)/4;
 
@@ -208,7 +214,7 @@
               xy2 = [x2,y2];
               
           if(angle) {
-            angle = angle/180*Math.PI;
+            angle = pir*Math.PI;
             var ox = ox || (x1+x2)/2,
                 oy = oy || (y1+y2)/2;
                 
@@ -227,14 +233,14 @@
           c2p : function(x,y) {
             var r = Math.sqrt(x*x+y*y),
                 a = Math.atan(y/x);
-            if(x < 0 && y >= 0) a += Math.PI // second quadrand
-            if(x < 0 && y < 0) a += Math.PI // third
-            if(x >= 0 && y < 0) a += 2*Math.PI  // fourth
+            if(x < 0 && y >= 0) a += pi // second quadrand
+            if(x < 0 && y < 0) a += pi // third
+            if(x >= 0 && y < 0) a += 2*pi  // fourth
             return [r,a];
           },
           p2c : function(r,a) {
-            var x = r*Math.cos(a),
-                y = r*Math.sin(a);
+            var x = r*cos(a),
+                y = r*sin(a);
             return [x,y];
           },
           convert : function(x,y,ox,oy,angle) {
@@ -246,20 +252,27 @@
             return xy;
           }
         },
+        fill : function(fillStyle) {
+          if(!fillStyle) throw Error('missing arguments');
+          paper.fillStyle = fillStyle;
+          return this;
+        },
+        stroke : function(strokeStyle) {
+          if(!strokeStyle) throw Error('missing arguments');
+          paper.strokeStyle = strokeStyle;
+          return this;
+        }, 
         style : function(style) {
           if(style && typeof style !== 'object') throw TypeError('style should be an object, but it\'s a '+typeof style);   
           for(var prop in style) {
             if(paper.hasOwnProperty(prop) || typeof paper[prop] !== 'function') {
               paper[prop] = style[prop];
             }
-            if(paper.hasOwnProperty(prop+'Style') || typeof paper[prop+'Style'] !== 'function') {
-              paper[prop+'Style'] = style[prop];
-            }
           }
           return this;
         } ,
         fastStyle : function(prop,value) {
-          if(!prop || !value) new Error('missing arguments');
+          if(!prop || !value) throw Error('missing arguments');
           paper[prop] = value;
           return this;
         },

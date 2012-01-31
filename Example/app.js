@@ -21,12 +21,12 @@
   paper.style({stroke:'none',fill:'#222'}).rect(0,0,paper.width,paper.height);
   
   // We draw some text
-  paper.style({stroke:'none',fill:'#fff'}).text(40,40,'Example 1');
+  paper.fill('#fff').text(40,40,'Example 1');
   //And a circle
   paper.circle(65,70,10);
   
   // A rect this time
-  paper.text(120,40,'Example 2');
+  paper.fill('#fff').text(120,40,'Example 2');
   paper.rect(135,60,30,10);
   
   // And a square
@@ -93,7 +93,7 @@
   
   // We setup the 6th example
   paper.text(440,40,'Example 6');
-  paper.style({fill:'none',stroke:'#fff'});
+  paper.style({fill:'#fff',stroke:'#fff'});
   
   // Some storage
   var grid = [[0,0,0],[0,0,0],[0,0,0]];
