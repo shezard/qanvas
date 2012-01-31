@@ -13,7 +13,7 @@
   root.qanvas = function(el,fullScreen,scaleX,scaleY) {
     
     // Dom Element
-    var canvas = document.getElementById(el);
+    var canvas = document.getElementById(el || 'canvas');
     if(!canvas) throw Error(el+' not found');
     // We extract the context2d
     var paper = canvas.getContext('2d');
@@ -208,6 +208,13 @@
         text : function(x,y,text) {
           paper.fillText(text,x,y);
           return this;
+        },
+        image : function(x,y,src) {
+          var i = new Image();
+          i.src = src;
+          i.onload = function() {
+            paper.drawImage(this,x,y);
+          }
         },
         line : function(x1,y1,x2,y2,angle,ox,oy) {
           var xy = [x1,y1],
