@@ -18,9 +18,12 @@
     // We extract the context2d
     var paper = canvas.getContext('2d');
     if(!paper) throw Error(el+'.getContext(\'2d\') not found'); 
-    // We store width and height, and set the 
-    var width = canvas.width = fullScreen ? document.body.clientWidth*(scaleX || 1) : canvas.width*(scaleX || 1),
-        height = canvas.height = fullScreen ? document.body.clientHeight*(scaleY || 1) : canvas.height*(scaleY || 1);
+    
+    var screenW = Math.max((document.body.clientWidth || window.innerWidth || document.body.scrollWidth), (window.screen.availWidth || 0));
+    var screenH = window.innerheight || document.body.clientHeight || document.body.scrollHeight || window.screen.availHeight;
+    // We store width and height, and set it 
+    var width = canvas.width = fullScreen ? screenW*(scaleX || 1) : canvas.width*(scaleX || 1),
+        height = canvas.height = fullScreen ? screenH *(scaleY || 1) : canvas.height*(scaleY || 1);
     
     // faster access cache
     var pi = Math.PI,
