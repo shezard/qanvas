@@ -61,7 +61,7 @@ paper.helper.p2c(radius,angle);
 // Polar to Carthesian
 // Return a coresponding [x,y] array
 
-paper.convert(x,y,ox,oy,angle);
+paper.helper.convert(x,y,ox,oy,angle);
 // Return a new [x,y], after having rotate x,y from 'angle' centred on ox, oy
 
 ```
